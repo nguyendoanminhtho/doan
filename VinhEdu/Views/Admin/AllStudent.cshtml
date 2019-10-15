@@ -1,0 +1,260 @@
+﻿
+@{
+    ViewBag.Title = "Quản Lý Học Sinh";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+@Html.Partial("_PartialGrid")
+<div class="container-fluid" style="margin-top:15px;padding-top:15px;">
+    <h3>Thêm học sinh</h3>
+    <div class="card-header">
+        <div class="row mb-2">
+            <div class="col-md-4">
+                Trường:
+                @Html.DropDownList("SchoolID", (IEnumerable<SelectListItem>)ViewBag.SchoolList, new { @class = "form-control" })
+            </div>
+            <div class="col-md-1">
+                Lớp:
+                @Html.DropDownList("ClassID", (IEnumerable<SelectListItem>)ViewBag.Class, new { @class = "form-control" })
+            </div>
+            <div class="col-md-2">
+                Niên khóa:
+                @Html.DropDownList("ConfigureID", (IEnumerable<SelectListItem>)ViewBag.Config, new { @class = "form-control" })
+            </div>
+            <div class="col-md-5 pt-4">
+                <button class="btn btn-outline-danger" onclick="WarnDelete()">Xóa dòng đã chọn</button>
+                <button class="btn btn-outline-warning float-right" onclick="Submit()">Cập nhật</button>
+            </div>
+        </div>
+    </div>
+    <div id="myGrid" style="height: 600px;width:100%;" class="ag-theme-balham"></div>
+
+    <div class="modal fade" id="deleteModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Bạn có muốn xóa ?</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    Modal body..
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" id="DeleteBtn" class="btn btn-danger">Xóa</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script src="~/Scripts/aggrid/DateEditor.js"></script>
+    <script>
+        var Student = {};
+        // specify the columns
+        var columnDefs = [
+            { headerName: "Mã tài khoản", field: "Identifier", editable: false,resizable: true },
+            { headerName: "Họ và tên", field: "FullName", editable: true,resizable: true },
+            {
+                headerName: "Ngày sinh",
+                field: "DateOfBirth",
+                editable: true, resizable: true,
+                cellEditor: DateEditor
+            },
+            {
+                headerName: "Giới tính", field: "Gender",
+                editable: true, resizable: true,
+                cellEditor: 'agSelectCellEditor',
+                cellEditorParams: {
+                    values: ['Nam', 'Nữ']
+                }
+            },
+            ///{ headerName: "Mật khẩu", field: "Password", editable: true,resizable: true },
+        ];
+
+        // specify the data
+        var rowData = [
+           //{ Identifier: 'STD001', FullName: 'Đinh Trung Kiên', DateOfBirth: '08/10/2019', Gender: 'Nam', Password: '' },
+        ];
+
+        // let the grid know which columns and what data to use
+        var gridOptions = {
+            columnDefs: columnDefs,
+            rowData: rowData,
+            rowSelection: 'single',
+            onSelectionChanged: onSelectionChanged
+        };
+        function onSelectionChanged() {
+            var selectedRows = gridOptions.api.getSelectedRows();
+            Student.Identifier = selectedRows[0].Identifier;
+            Student.FullName = selectedRows[0].FullName;
+        }
+        // lookup the container we want the Grid to use
+        var eGridDiv = document.querySelector('#myGrid');
+
+        // create the grid passing in the div to use together with the columns & data we want to use
+        new agGrid.Grid(eGridDiv, gridOptions);
+        function AddRow() {
+            var newItem = { Identifier: null, FullName: null, DateOfBirth: null, Gender: 'Nam' };
+            var res = gridOptions.api.updateRowData({ add: [newItem] });
+            console.log(res);
+        }
+        function RemoveSelected() {
+            var selectedData = gridOptions.api.getSelectedRows();
+            var res = gridOptions.api.updateRowData({remove: selectedData});
+            console.log(res);
+        }
+        function ClearData() {
+             gridOptions.api.setRowData([]);
+        }
+    </script>
+    <script>
+        var schoolID, classID, Config;
+        var confirmModal = $('#deleteModal');
+        $(document).ready(function () {
+            schoolID = $('#SchoolID').children("option:selected").val();
+            classID = $('#ClassID').children("option:selected").val();
+            Config = $('#ConfigureID').children("option:selected").val();
+            GetData();
+        });
+        $('#ClassID').change(() => {
+            GetData();
+        })
+        $('#ConfigureID').change(() => {
+            GetData();
+        })
+        $('#SchoolID').change(() => {
+            schoolID = $('#SchoolID').children("option:selected").val();
+            GetClass(schoolID);
+        })
+        var GetClass = function (id) {
+            $.ajax({
+                type: "POST",
+                url: '/Admin/GetClassBySchoolID',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({ id: id }),
+                dataType: "json",
+                success: function (data) {
+                    $('#ClassID').empty();
+                    if (data.length > 0) {
+                        data.forEach((e) => {
+                            $('#ClassID').append('<option value=' + e.ClassID + '>' + e.ClassName + '</option>');
+                        });
+                    }
+                },
+                error: function () {
+                    var notify = $.notify('<strong>Lỗi</strong><br/>Lỗi hệ thống<br />', {
+                        type: 'pastel-danger',
+                        allow_dismiss: false,
+                        timer: 1000,
+                    });
+                }
+            });
+        }
+        function GetData() {
+            $.ajax({
+                type: "POST",
+                url: '/Admin/GetStudent',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({ ClassID: classID, ConfigureID: Config }),
+                dataType: "json",
+                success: function (data) {
+                    ClearData();
+                    let newdata = [];
+                    data.forEach((e) => {
+                        newdata.push({ ...e, Gender: e.Gender == 0 ? 'Nam' : 'Nữ' });
+                    });
+                    gridOptions.setRowData(newdata);
+                },
+                error: function () {
+                    var notify = $.notify('<strong>Lỗi</strong><br/>Lỗi hệ thống<br />', {
+                        type: 'pastel-danger',
+                        allow_dismiss: false,
+                        timer: 1000,
+                    });
+                }
+            });
+        }
+        function WarnDelete() {
+            swal({
+                title: "Bạn chắc chứ ?",
+                text: "Bạn có chắc muốn xóa học sinh: " + Student.FullName,
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+            .then((willDelete) => {
+                if (willDelete) {
+                    $.ajax({
+                        type: "POST",
+                        url: '/Admin/DeleteStudent',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({ Identifier: Student.Identifier }),
+                        dataType: "json",
+                        success: function (data) {
+                            ClearData();
+                            swal("Thành công", data, "success");
+                        },
+                        error: function () {
+                            swal("Lỗi", "Lỗi hệ thống", "error");
+                            //var notify = $.notify('<strong>Lỗi</strong><br/>Lỗi hệ thống<br />', {
+                            //    type: 'pastel-danger',
+                            //    allow_dismiss: false,
+                            //    timer: 1000,
+                            //});
+                        }
+                    });
+
+                } else {
+                    //swal("Your imaginary file is safe!");
+                }
+            });
+        }
+    </script>
+    <script>
+        //Submit
+        var Submit = function () {
+            $('#overlay').fadeIn();
+            if (Validate(gridOptions.rowData)) {
+                $.ajax({
+                    type: "POST",
+                    url: '/Admin/EditBatchStudent',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({ students: gridOptions.rowData}),
+                    dataType: "json",
+                    success: function (data) {
+                        ClearData();
+                        swal("Thành công", "OK", "success");
+                    },
+                    error: function () {
+                        var notify = $.notify('<strong>Lỗi</strong><br/>Lỗi hệ thống<br />', {
+                            type: 'pastel-danger',
+                            allow_dismiss: false,
+                            timer: 1000,
+                        });
+                    }
+                });
+
+                $('#overlay').fadeOut();
+            }
+            else {
+                swal("Lỗi", "Dữ liệu chưa đầy đủ", "error");
+                $('#overlay').fadeOut();
+            }
+        }
+        //Check ko bỏ trống trường nào
+        function Validate(dat) {
+            let re = dat.every((e) => {
+                return Object.values(e).every((sub) => {
+                        //console.log(sub);
+                        return sub ? true : false;
+                    })
+            });
+            return re;
+        }
+    </script>
+</div>
