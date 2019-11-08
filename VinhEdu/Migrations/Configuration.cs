@@ -34,6 +34,7 @@
             {
                 ID = 2,
                 Identifier = "ngocnguyen123@gmail.com",
+                SchoolID = 1,
                 FullName = "Nguyễn Ngọc",
                 Type = UserType.HeadMaster,
                 Role = "headmaster",
@@ -49,6 +50,7 @@
                 ID = 3,
                 Identifier = "ngocnguyenabc@gmail.com",
                 FullName = "Hiệu Trưởng 2",
+                SchoolID = 2,
                 Type = UserType.HeadMaster,
                 Role = "headmaster",
                 Status = UserStatus.Activated,
@@ -58,21 +60,17 @@
                 Gender = Gender.Male,
 
             });
+            //Thông tin sở
+            context.Settings.AddOrUpdate(e => e.ID, new Setting
+            {
+                ID = 1,
+                OrganizationName = "Phòng GD & ĐT Thành Phố Vinh",
+                Semmester = Semmester.HK1
+            });
             this.SeedData(context);
         }
         private void SeedData(VinhEdu.Models.EduVinhContext context)
         {
-            //Base class
-            context.BaseClassLists.AddOrUpdate(e => e.ID, new BaseClassList
-            {
-                ID = 1,
-                ClassName = "6A"
-            });
-            context.BaseClassLists.AddOrUpdate(e => e.ID, new BaseClassList
-            {
-                ID = 2,
-                ClassName = "6B"
-            });
             //Thêm môn học
             context.Subjects.AddOrUpdate(e => e.ID, new Subject
             {
@@ -174,7 +172,8 @@
                 ID = 4,
                 Identifier = "giaovien1@gmail.com",
                 SubjectID = 1,
-                FullName = "Giáo Viên Toán",
+                SchoolID =1,
+                FullName = "Nguyễn Văn Toán",
                 Type = UserType.Teacher,
                 Role = "teacher",
                 Status = UserStatus.Activated,
@@ -186,8 +185,9 @@
             context.Users.AddOrUpdate(e => e.ID, new User
             {
                 ID = 5,
+                SchoolID = 1,
                 Identifier = "giaovien2@gmail.com",
-                FullName = "Giáo Viên Văn",
+                FullName = "Hoàng Thị Văn",
                 SubjectID = 2,
                 Type = UserType.Teacher,
                 Role = "teacher",
@@ -200,8 +200,9 @@
             context.Users.AddOrUpdate(e => e.ID, new User
             {
                 ID = 6,
+                SchoolID = 1,
                 Identifier = "giaovien3@gmail.com",
-                FullName = "Giáo Viên Anh",
+                FullName = "Đặng Ngọc Ngữ",
                 Type = UserType.Teacher,
                 SubjectID = 3,
                 Role = "teacher",
@@ -216,6 +217,7 @@
                 ID = 7,
                 Identifier = "giaovien4@gmail.com",
                 FullName = "Nguyễn Ngọc",
+                SchoolID = 2,
                 Type = UserType.Teacher,
                 SubjectID = 4,
                 Role = "teacher",
@@ -226,7 +228,7 @@
                 Gender = Gender.Female,
 
             });
-            // Thêm Lớp 1 -4
+            // Thêm Lớp 1 - 4
             context.Classes.AddOrUpdate(e => e.ClassID, new Class
             {
                 ClassID = 1,
@@ -240,12 +242,12 @@
                 SchoolID = 1,
                 ClassName = "6B",
             });
-            context.Classes.AddOrUpdate(e => e.ClassID, new Class
+            context.Classes.AddOrUpdate(e => e.ClassID, new Class 
             {
                 ClassID = 3,
                 SchoolID = 2,
                 //HomeRoomTeacherID = 4,
-                ClassName = "6A",
+                ClassName = "6C",
             });
             context.Classes.AddOrUpdate(e => e.ClassID, new Class
             {
@@ -330,7 +332,6 @@
                 ClassID = 1,
                 UserID = 4,
                 IsHomeTeacher = true,
-                IsCurrent = true,
                 ConfigureID = 1,
             });
             // Giao viên
@@ -339,7 +340,6 @@
                 ClassID = 1,
                 UserID = 5,
                 IsHomeTeacher = false,
-                IsCurrent = true,
                 ConfigureID = 1,
             });
             context.ClassMembers.AddOrUpdate(e => e.ClassID, new ClassMember
@@ -348,14 +348,12 @@
                 UserID = 6,
                 IsHomeTeacher = false,
                 ConfigureID = 1,
-                IsCurrent = true,
             });
             context.ClassMembers.AddOrUpdate(e => e.ClassID, new ClassMember
             {
                 ClassID = 1,
                 UserID = 7,
                 IsHomeTeacher = false,
-                IsCurrent = true,
                 ConfigureID = 1,
             });
             // Học sinh của lớp
@@ -364,31 +362,31 @@
                 ClassID = 1,
                 UserID = 8,
                 IsHomeTeacher = false,
-                IsCurrent = true,
                 ConfigureID = 1,
+                LearnStatus = LearnStatus.Learning,
             });
             context.ClassMembers.AddOrUpdate(e => e.ClassID, new ClassMember
             {
                 ClassID = 1,
                 UserID = 9,
                 IsHomeTeacher = false,
-                IsCurrent = true,
                 ConfigureID = 1,
+                LearnStatus = LearnStatus.Learning,
             });
             context.ClassMembers.AddOrUpdate(e => e.ClassID, new ClassMember
             {
                 ClassID = 1,
                 UserID = 10,
                 IsHomeTeacher = false,
-                IsCurrent = true,
                 ConfigureID = 1,
+                LearnStatus = LearnStatus.Learning,
             });
             context.ClassMembers.AddOrUpdate(e => e.ClassID, new ClassMember
             {
                 ClassID = 1,
                 UserID = 11,
                 IsHomeTeacher = false,
-                IsCurrent = true,
+                LearnStatus = LearnStatus.Learning,
                 ConfigureID = 1,
             });
             context.ClassMembers.AddOrUpdate(e => e.ClassID, new ClassMember
@@ -396,8 +394,8 @@
                 ClassID = 1,
                 UserID = 12,
                 IsHomeTeacher = false,
-                IsCurrent = true,
                 ConfigureID = 1,
+                LearnStatus = LearnStatus.Learning,
             });
         }
         

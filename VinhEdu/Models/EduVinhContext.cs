@@ -11,7 +11,7 @@ namespace VinhEdu.Models
             : base("name=EDUVinhCtx")
         {
         }
-
+        public virtual DbSet<Setting> Settings { get; set; }
         public virtual DbSet<Attendance> Attendances { get; set; }
         public virtual DbSet<Class> Classes { get; set; }
         public virtual DbSet<ClassMember> ClassMembers { get; set; }
@@ -20,7 +20,6 @@ namespace VinhEdu.Models
         public virtual DbSet<School> Schools { get; set; }
         public virtual DbSet<Subject> Subjects { get; set; }
         public virtual DbSet<User> Users { get; set; }
-        public virtual DbSet<BaseClassList> BaseClassLists { get; set; }
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             //modelBuilder.Entity<Class>()
@@ -31,9 +30,9 @@ namespace VinhEdu.Models
             //    .Property(e => e.TeacherList)
             //    .IsUnicode(false);
 
-            modelBuilder.Entity<Class>()
-                .HasMany(e => e.Attendances)
-                .WithRequired(e => e.Class)
+            modelBuilder.Entity<School>()
+                .HasMany(e => e.Teachers)
+                .WithOptional(e => e.School)
                 .WillCascadeOnDelete(false);
 
             modelBuilder.Entity<Class>()

@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using VinhEdu.Models;
 using VinhEdu.Repository;
-using VinhEdu.Utilities;
 using VinhEdu.ViewModels;
+using static VinhEdu.Models.AdditionalDefinition;
 
 namespace VinhEdu.Controllers
 {
@@ -32,115 +31,97 @@ namespace VinhEdu.Controllers
         public ViewResult AllStudent()
         {
             List<School> lst = db.SchoolRepository.GetAll().ToList();
-            List<Configure> configures = db.ConfigRepository.GetAll().ToList();
-            int id = lst.First().SchoolID;
-            List<Class> classes = db.ClassRepository.GetAll().Where(e => e.SchoolID == id).ToList();
+            List<Configure> configures = db.ConfigRepository.GetAll().OrderByDescending(e => e.IsActive).ToList();
+            int SchoolId = lst.First().SchoolID;
+            List<Class> classes = db.ClassRepository.GetAll().Where(e => e.SchoolID == SchoolId).ToList();
             ViewBag.Class = new SelectList(classes, "ClassID", "ClassName");
             ViewBag.Config = new SelectList(configures, "ID", "SchoolYear");
             ViewBag.SchoolList = new SelectList(lst, "SchoolID", "SchoolName");
             return View();
         }
-        public JsonResult GetStudent(int ClassID, int ConfigureID)
+        public ViewResult CreateTeacher()
         {
-            var q = from u in Context.Users
-                    join a in Context.ClassMembers
-                    on u.ID equals a.UserID
-                    where a.ConfigureID == ConfigureID && u.Type == AdditionalDefinition.UserType.Student
-                    && u.Status == AdditionalDefinition.UserStatus.Activated
-                    select new User
+            TeacherViewModel model = new TeacherViewModel
+            {
+                Subject = db.SubjectRepository.GetAll().Select(m =>
+                    new SelectListItem
                     {
-                        Identifier = u.Identifier,
-                        DateOfBirth = u.DateOfBirth,
-                        FullName = u.FullName,
-                        Gender = u.Gender,
-                    };
-
-            return Json(q.ToList(), JsonRequestBehavior.AllowGet);
+                        Text = m.SubjectName,
+                        Value = m.ID.ToString(),
+                    }
+                    ).ToList(),
+            };
+            List<School> lst = db.SchoolRepository.GetAll().ToList();
+            List<Configure> configures = db.ConfigRepository.GetAll().ToList();
+            ViewBag.Config = new SelectList(configures, "ID", "SchoolYear");
+            ViewBag.SchoolList = new SelectList(lst, "SchoolID", "SchoolName");
+            return View(model);
         }
-        public JsonResult DeleteStudent(string Identifier)
+        public ViewResult AllTeacher()
         {
-            try
+            List<School> lst = db.SchoolRepository.GetAll().ToList();
+            List<Configure> configures = db.ConfigRepository.GetAll().OrderByDescending(e => e.IsActive).ToList();
+            int SchoolId = lst.First().SchoolID;
+            List<Class> classes = new List<Class>();
+            classes.Add(new Class
             {
-                User u = db.UserRepository.FindByIdentifier(Identifier);
-                u.Status = AdditionalDefinition.UserStatus.Deleted;
-                db.SaveChanges();
-                return Json("Thành công", JsonRequestBehavior.AllowGet);
-            }
-            catch(Exception e)
-            {
-                Response.StatusCode = 500;
-                return Json(e.Message, JsonRequestBehavior.AllowGet);
-            }
+                ClassID = 0,
+                ClassName = "Tất cả"
+            });
+            classes.AddRange(db.ClassRepository.GetAll().Where(e => e.SchoolID == SchoolId).ToList());
+            ViewBag.Class = new SelectList(classes, "ClassID", "ClassName");
+            ViewBag.Config = new SelectList(configures, "ID", "SchoolYear");
+            ViewBag.SchoolList = new SelectList(lst, "SchoolID", "SchoolName");
+            return View();
         }
-        public JsonResult GetClassBySchoolID(int id)
+        public ViewResult TeacherClass()
         {
-            try
-            {
-                bool exist =  db.ClassRepository.GetAll().Where(e => e.SchoolID == id).Any();
-                if(exist)
-                {
-                    var lst = db.ClassRepository.GetAll().Where(e => e.SchoolID == id)
-                    .Select(c => new
-                    {
-                        c.ClassID,
-                        c.ClassName,
-                    })
-                    .ToList();
-
-                    return Json(lst, JsonRequestBehavior.AllowGet);
-                }
-                Response.StatusCode = 500;
-                return Json(new { Message = "Trường học không tồn tại" }, JsonRequestBehavior.AllowGet);
-            }
-            catch(Exception e)
-            {
-                Response.StatusCode = 500;
-                return Json(new { Message = e }, JsonRequestBehavior.AllowGet);
-            }
+            List<School> lst = db.SchoolRepository.GetAll().ToList();
+            List<Configure> configures = db.ConfigRepository.GetAll().OrderByDescending(e => e.IsActive).ToList();
+            int SchoolId = lst.First().SchoolID;
+            List<Class> classes = db.ClassRepository.GetAll().Where(e => e.SchoolID == SchoolId).ToList();
+            //List<SubjectList> subjects = db.SubjectRepository.GetAll()
+            //    .Select(c => new SubjectList
+            //    { 
+            //        SubjectID = c.ID,
+            //        SubjectName = c.SubjectName,
+            //    }).ToList();
+            ViewBag.Class = new SelectList(classes, "ClassID", "ClassName");
+            ViewBag.Config = new SelectList(configures, "ID", "SchoolYear");
+            ViewBag.SchoolList = new SelectList(lst, "SchoolID", "SchoolName");
+            //ViewBag.Subjects = subjects;
+            return View();
         }
-        public JsonResult AddBatchStudent(List<StudentList> students, int ClassID, int ConfigureID)
+        [HttpGet]
+        public ViewResult Setting()
         {
-            try
-            {
-                List<User> lst = new List<User>();
-                foreach(StudentList item in students)
-                {
-                    User std = new User
-                    {
-                        DateOfBirth = item.DateOfBirth,
-                        CreateDate = DateTime.Now,
-                        FullName = item.FullName,
-                        Identifier = item.Identifier,
-                        Password = Common.CalculateMD5Hash(item.Password),
-                        Role = "student",
-                        Status = AdditionalDefinition.UserStatus.Activated,
-                        Type = AdditionalDefinition.UserType.Student,
-                        Gender = item.Gender,
-                    };
-                    lst.Add(std);
-                }
-                db.UserRepository.AddRangeUser(lst);
-                //Thêm vào lớp
-                lst.ForEach(e =>
-                {
-                    db.MemberRepository.Add(new ClassMember
-                    {
-                        ClassID = ClassID,
-                        ConfigureID = ConfigureID,
-                        UserID = e.ID,
-                        IsCurrent = true,
-                    });
-                });
-                db.SaveChanges();
-                return Json(new {message = "Thêm thành công!"}, JsonRequestBehavior.AllowGet);
-            }
-            catch(Exception e)
-            {
-                Response.StatusCode = 500;
-                return Json(e.Message, JsonRequestBehavior.AllowGet);
-            }
+            List<Configure> configures = db.ConfigRepository.GetAll().OrderByDescending(e => e.IsActive).ToList();
+            ViewBag.Config = new SelectList(configures, "ID", "SchoolYear");
+            Setting setting = Context.Settings.FirstOrDefault();
+            return View(setting);
+        }
+        [HttpPost]
+        public JsonResult Setting(string org,Semmester semmester, int ConfigID)
+        {
             
+            Setting setting = Context.Settings.FirstOrDefault();
+            setting.OrganizationName = org;
+            setting.Semmester = semmester;
+            List<Configure> configure = Context.Configures.ToList();
+            configure.ForEach((e) =>
+            {
+                if (e.IsActive)
+                {
+                    e.IsActive = false;
+                }
+                if (e.ID == ConfigID)
+                {
+                    e.IsActive = true;
+                }
+            });
+            Context.SaveChanges();
+            return Json("Cập nhật thành công");
         }
     }
-    
+
 }

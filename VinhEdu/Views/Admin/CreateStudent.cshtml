@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "Thêm Học Sinh Mới";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
@@ -78,11 +77,10 @@
             </div>
         </div>
     </div>
-    <script src="~/Scripts/aggrid/DateEditor.js"></script>
     <script>
         // specify the columns
         var columnDefs = [
-            { headerName: "Mã tài khoản", field: "Identifier", editable: true,resizable: true },
+            { headerName: "Mã tài khoản", field: "Identifier", editable: true,resizable: true, colId:'Identifier' },
             { headerName: "Họ và tên", field: "FullName", editable: true,resizable: true },
             {
                 headerName: "Ngày sinh",
@@ -176,7 +174,7 @@
         var getClass = function (id) {
             $.ajax({
                 type: "POST",
-                url: '/Admin/GetClassBySchoolID',
+                url: '/AdStudent/GetClassBySchoolID',
                 contentType: "application/json; charset=utf-8",
                 data: JSON.stringify({ id: id }),
                 dataType: "json",
@@ -200,25 +198,36 @@
     </script>
     <script>
         //Submit
+        function getAllRows() {
+            let rowData = [];
+            gridOptions.api.forEachNode(node => rowData.push(node.data));
+            return rowData.map((e) => {
+                return { ...e, Gender: e.Gender === 'Nam' ? 0 : 1 }
+            });
+        }
         var Config;
         var Submit = function () {
             $('#overlay').fadeIn();
-            if (Validate(gridOptions.rowData)) {
+            var checkFill = Validate(getAllRows());
+            var checkDuplicate = ValidateKey(getAllRows());
+            if (gridOptions.rowData.length > 0 && checkFill === true && !checkDuplicate) {
                 Config = $('#ConfigureID').children("option:selected").val();
                 schoolID = $('#SchoolID').children("option:selected").val();
                 classID = $('#ClassID').children("option:selected").val();
                 $.ajax({
                     type: "POST",
-                    url: '/Admin/AddBatchStudent',
+                    url: '/AdStudent/AddBatchStudent',
                     contentType: "application/json; charset=utf-8",
-                    data: JSON.stringify({ students: gridOptions.rowData, ClassID: classID, ConfigureID: Config }),
+                    data: JSON.stringify({ students: getAllRows(), ClassID: classID, ConfigureID: Config }),
                     dataType: "json",
                     success: function (data) {
+                        $('#overlay').fadeOut();
                         ClearData();
                         swal("Thành công", "OK", "success");
                     },
-                    error: function () {
-                        var notify = $.notify('<strong>Lỗi</strong><br/>Lỗi hệ thống<br />', {
+                    error: function (xhr, status, error) {
+                        $('#overlay').fadeOut();
+                        var notify = $.notify('<strong>Lỗi</strong><br/>'+xhr.responseText+'<br />', {
                             type: 'pastel-danger',
                             allow_dismiss: false,
                             timer: 1000,
@@ -226,10 +235,17 @@
                     }
                 });
                 
-                $('#overlay').fadeOut();
             }
             else {
-                swal("Lỗi", "Dữ liệu chưa đầy đủ", "error");
+                if (gridOptions.rowData.length === 0) {
+                     swal("Lỗi", "Dữ liệu chưa đầy đủ", "error");
+                }
+                if (!checkFill) {
+                    swal("Lỗi", "Dữ liệu chưa đầy đủ", "error");
+                }
+                else {
+                    swal("Lỗi", "Bạn nhập trùng mã tài khoản", "error");
+                }
                 $('#overlay').fadeOut();
             }
         }
@@ -237,11 +253,22 @@
         function Validate(dat) {
             let re = dat.every((e) => {
                 return Object.values(e).every((sub) => {
-                        //console.log(sub);
-                        return sub ? true : false;
+                        return (sub || sub === 0) ? true : false;
                     })
             });
             return re;
+        }
+        function ValidateKey(dat) {
+            if (dat.length == 1) {
+                return false;
+            }
+            //Lấy array identifiers
+            var valueArr = dat.map(function (item) { return item.Identifier });
+            // check có trùng lặp hay ko
+            var isDuplicate = valueArr.some(function (item, idx) {
+                return valueArr.indexOf(item) != idx
+            });
+            return isDuplicate;
         }
     </script>
 </div>

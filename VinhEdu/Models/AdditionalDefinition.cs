@@ -11,9 +11,9 @@ namespace VinhEdu.Models
         public enum Semmester
         {
             [Display(Name = "Học kỳ I")]
-            Teacher = 1,
+            HK1 = 1,
             [Display(Name = "Học kỳ II")]
-            Student = 2,
+            HK2 = 2,
         }
         public enum LoginType
         {
@@ -21,6 +21,17 @@ namespace VinhEdu.Models
             Teacher = 0,
             [Display(Name = "Học Sinh")]
             Student = 1,
+        }
+        public enum LearnStatus
+        {
+            [Display(Name = "Đã học xong")]
+            Finished = 0,
+            [Display(Name = "Đang học")]
+            Learning = 1,
+            [Display(Name = "Đã chuyển lớp")]
+            Switched = 2,
+            [Display(Name = "Học lại")]
+            Duplicated = 3,
         }
         public enum Gender
         {
@@ -31,8 +42,11 @@ namespace VinhEdu.Models
         }
         public enum UserStatus
         {
+            [Display(Name = "Không hoạt động")]
             NotActivated = 0,
+            [Display(Name ="Đang hoạt động")]
             Activated = 1,
+            [Display(Name = "Đã xóa")]
             Deleted = 2,
 
         }

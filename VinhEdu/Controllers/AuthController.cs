@@ -17,12 +17,24 @@ namespace VinhEdu.Controllers
         UnitOfWork db = new UnitOfWork();
         public ActionResult Index()
         {
+            if (Request.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Admin");
+            }
             return RedirectToAction("Login");
         }
         public ActionResult Login()
         {
             if (Request.IsAuthenticated)
             {
+                if (User.IsInRole("student"))
+                {
+                    return RedirectToAction("Index", "Student");
+                }
+                if (User.IsInRole("teacher") || User.IsInRole("headmaster"))
+                {
+                    return RedirectToAction("Index", "Teacher");
+                }
                 return RedirectToAction("Index", "Admin");
             }
             return View();
@@ -52,7 +64,10 @@ namespace VinhEdu.Controllers
         [HttpPost]
         public ActionResult Login(LoginViewModel model, string ReturnUrl)
         {
-
+            if (Request.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Admin");
+            }
             if (ModelState.IsValid)
             {
                 var exist = db.UserRepository.CheckExistByIdentifier(model.Identify);
@@ -106,18 +121,35 @@ namespace VinhEdu.Controllers
                 }
                 else
                 {
-                    User user = null;
-                    user = db.UserRepository.FindByIdentifier(User.Identity.Name);
-                    
-                    if (user != null)
-                    {
-                        user.Password = Common.CalculateMD5Hash(model.password);
-                        db.SaveChanges();
-                        return RedirectToAction("Logout");
-                    }
+                    User user = db.UserRepository.FindByID((int)Session["UserID"]);
+                    user.Password = Common.CalculateMD5Hash(model.password);
+                    db.SaveChanges();
+                    return RedirectToAction("Logout");
                 }
             }
             return View();
+        }
+        [Authorize(Roles = "admin")]
+        public JsonResult ChangeUserPass(string Identifier, string NewPass)
+        {
+            try
+            {
+                bool exist = db.UserRepository.CheckExistByIdentifier(Identifier);
+                if (exist)
+                {
+                    User u = db.UserRepository.FindByIdentifier(Identifier);
+                    u.Password = Common.CalculateMD5Hash(NewPass);
+                    db.SaveChanges();
+                    return Json("Thành công", JsonRequestBehavior.AllowGet);
+                }
+                Response.StatusCode = 500;
+                return Json("Lỗi", JsonRequestBehavior.AllowGet);
+            }
+            catch(Exception e)
+            {
+                Response.StatusCode = 500;
+                return Json(e.Message, JsonRequestBehavior.AllowGet);
+            }
         }
     }
 }
