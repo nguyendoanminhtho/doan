@@ -43,7 +43,7 @@
                 DateOfBirth = DateTime.Parse("2019-12-12"),
                 Password = "0192023A7BBD73250516F069DF18B500", // = admin123
                 Gender = Gender.Female,
-                
+
             });
             context.Users.AddOrUpdate(e => e.ID, new User
             {
@@ -68,6 +68,8 @@
                 Semester = Semester.HK1
             });
             this.SeedData(context);
+            SeedData Seeder = new SeedData();
+            Seeder.Seed(context);
         }
         private void SeedData(VinhEdu.Models.EduVinhContext context)
         {
@@ -166,13 +168,67 @@
                 SchoolName = "THCS Quang Trung",
                 HeadMasterID = 3,
             });
+            context.Schools.AddOrUpdate(e => e.SchoolID, new School
+            {
+                SchoolID = 3,
+                SchoolName = "THCS Hà Huy Tập",
+                HeadMasterID = 3,
+            });
+            context.Schools.AddOrUpdate(e => e.SchoolID, new School
+            {
+                SchoolID = 4,
+                SchoolName = "THCS Trung Đô",
+                HeadMasterID = 3,
+            });
+            context.Schools.AddOrUpdate(e => e.SchoolID, new School
+            {
+                SchoolID = 5,
+                SchoolName = "THCS Đội Cung",
+                HeadMasterID = 3,
+            });
+            context.Schools.AddOrUpdate(e => e.SchoolID, new School
+            {
+                SchoolID = 6,
+                SchoolName = "THCS Lê lợi",
+                HeadMasterID = 3,
+            });
+            context.Schools.AddOrUpdate(e => e.SchoolID, new School
+            {
+                SchoolID = 7,
+                SchoolName = "THCS Bến Thủy",
+                HeadMasterID = 3,
+            });
+            context.Schools.AddOrUpdate(e => e.SchoolID, new School
+            {
+                SchoolID = 8,
+                SchoolName = "THCS Hưng Dũng",
+                HeadMasterID = 3,
+            });
+            context.Schools.AddOrUpdate(e => e.SchoolID, new School
+            {
+                SchoolID = 9,
+                SchoolName = "THCS Hưng Lộc",
+                HeadMasterID = 3,
+            });
+            context.Schools.AddOrUpdate(e => e.SchoolID, new School
+            {
+                SchoolID = 10,
+                SchoolName = "THCS Nghi Ân",
+                HeadMasterID = 3,
+            });
+            context.Schools.AddOrUpdate(e => e.SchoolID, new School
+            {
+                SchoolID = 11,
+                SchoolName = "THCS Nghi Kim",
+                HeadMasterID = 3,
+            });
             // Thêm Gíao viên 4 - 7
             context.Users.AddOrUpdate(e => e.ID, new User
             {
                 ID = 4,
                 Identifier = "giaovien1@gmail.com",
                 SubjectID = 1,
-                SchoolID =1,
+                SchoolID = 1,
                 FullName = "Nguyễn Văn Toán",
                 Type = UserType.Teacher,
                 Role = "teacher",
@@ -242,19 +298,26 @@
                 SchoolID = 1,
                 ClassName = "6B",
             });
-            context.Classes.AddOrUpdate(e => e.ClassID, new Class 
+            context.Classes.AddOrUpdate(e => e.ClassID, new Class
             {
                 ClassID = 3,
-                SchoolID = 2,
-                //HomeRoomTeacherID = 4,
+                SchoolID = 1,
                 ClassName = "6C",
             });
             context.Classes.AddOrUpdate(e => e.ClassID, new Class
             {
                 ClassID = 4,
-                SchoolID = 2,
-                ClassName = "6E",
+                SchoolID = 1,
+                ClassName = "6D",
             });
+            context.Classes.AddOrUpdate(e => e.ClassID, new Class
+            {
+                ClassID = 5,
+                SchoolID = 1,
+                ClassName = "7A",
+            });
+ 
+
             // Thêm học sinh 8 - 12
             context.Users.AddOrUpdate(e => e.ID, new User
             {
@@ -328,7 +391,8 @@
             });
             //Thêm thành viên Lớp
             //Chủ nhiệm
-            context.ClassMembers.AddOrUpdate(e =>e.ClassID,new ClassMember{
+            context.ClassMembers.AddOrUpdate(e => e.ClassID, new ClassMember
+            {
                 ClassID = 1,
                 UserID = 4,
                 IsHomeTeacher = true,
@@ -399,5 +463,6 @@
             });
         }
         
+
     }
 }

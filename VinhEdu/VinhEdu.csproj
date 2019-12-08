@@ -194,6 +194,7 @@
       <DependentUpon>201912020658453_editsemmester.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Migrations\SeedData.cs" />
     <Compile Include="Models\AdditionalDefinition.cs" />
     <Compile Include="Models\Attendance.cs" />
     <Compile Include="Models\Class.cs" />
@@ -202,9 +203,9 @@
     <Compile Include="Models\EduVinhContext.cs" />
     <Compile Include="Models\PointBoard.cs" />
     <Compile Include="Models\School.cs" />
+    <Compile Include="Models\ScoreRequired.cs" />
     <Compile Include="Models\Setting.cs" />
     <Compile Include="Models\Subject.cs" />
-    <Compile Include="Models\UpScoreObject.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository\GenericRepository.cs" />
@@ -218,6 +219,7 @@
     <Compile Include="ViewModels\ClassSelect.cs" />
     <Compile Include="ViewModels\EditMark.cs" />
     <Compile Include="ViewModels\SchoolListViewModel.cs" />
+    <Compile Include="ViewModels\ShowHomeClass.cs" />
     <Compile Include="ViewModels\StudentList.cs" />
     <Compile Include="ViewModels\StudentLoginViewModel.cs" />
     <Compile Include="ViewModels\SubjectList.cs" />
@@ -1245,6 +1247,7 @@
     <Content Include="Views\Teacher\PointBoard.cshtml" />
     <Content Include="Views\Student\Index.cshtml" />
     <Content Include="Views\Student\PointBoard.cshtml" />
+    <Content Include="Views\Teacher\MyHomeClass.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
