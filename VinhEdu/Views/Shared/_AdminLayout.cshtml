@@ -78,7 +78,7 @@
                     <a class="nav-link" data-widget="pushmenu" href="#"><i class="fa fa-bars"></i></a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a href="/" class="nav-link">Trang chủ</a>
+                    <a href="#" class="nav-link">Năm học: @Session["SchoolYear"] - @Session["SemesterName"]</a>
                 </li>
 
             </ul>
@@ -102,6 +102,30 @@
                     </div>
                     <div class="info">
                         <a href="#" class="d-block">@Session["Name"]</a>
+                        @{
+                            var role = "";
+                            if (User.IsInRole("admin"))
+                            {
+                                role = "ADMIN";
+                            }
+                            if (User.IsInRole("teacher"))
+                            {
+                                role = "GIÁO VIÊN";
+                            }
+                            if (User.IsInRole("student"))
+                            {
+                                role = "HỌC SINH";
+                            }
+                        }
+                        <span class="badge badge-info">@role</span>
+                        @if (User.IsInRole("teacher"))
+                        {
+                            <span class="badge badge-success">@Session["SubjectName"]</span>
+                        }
+                        @if (User.IsInRole("student"))
+                        {
+                            <span class="badge badge-success">Lớp @Session["ClassName"]</span>
+                        }
                     </div>
                 </div>
 

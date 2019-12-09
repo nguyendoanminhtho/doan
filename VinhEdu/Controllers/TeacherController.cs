@@ -223,7 +223,7 @@ namespace VinhEdu.Controllers
         /// <returns></returns>
         public ActionResult PointBoard(int ClassID)
         {
-            ViewBag.Semester = db.context.Settings.FirstOrDefault().Semester.GetDisplayName();
+            
             try
             {
                 var className = db.ClassRepository.FindByID(ClassID).ClassName;
@@ -236,6 +236,8 @@ namespace VinhEdu.Controllers
                     ViewBag.Title = "Quản lý điểm";
                     ViewBag.ClassID = ClassID;
                     ViewBag.ClassName = className;
+                    ViewBag.Semester = db.context.Settings.FirstOrDefault().Semester.GetDisplayName();
+                    ViewBag.SubjectName = db.UserRepository.FindByID(UserID).Subject.SubjectName;
                     return View();
                 }
                 else
@@ -377,6 +379,20 @@ namespace VinhEdu.Controllers
 
             }
             return Json(new { Message = "Bạn nhập điểm không hợp lệ \n Điểm từ x (chưa có) và 0 đến 10", Success = false }, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Gửi tin nhắn cho phụ huynh
+        /// </summary>
+        /// <param name="studentID"></param>
+        /// <param name="classID"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public JsonResult SendContact(int studentID,int classID,string message)
+        {
+            var CurrentConfig = (int)Session["ConfigID"];
+            var UserID = (int)Session["UserID"];
+            return Json(true, JsonRequestBehavior.AllowGet);
         }
          
     }
