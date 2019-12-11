@@ -7,6 +7,11 @@ using VinhEdu.Models;
 
 namespace VinhEdu.ViewModels
 {
+    public class CheckMark
+    {
+        public List<MarkStudent> markStudents { get; set; }
+        public bool isFinished {get;set;}
+    }
     public class MarkStudent
     {
         public int StudentID { get; set; }
@@ -19,6 +24,7 @@ namespace VinhEdu.ViewModels
         public int SubjectID { get; set; }
         public Score Score { get; set; }
         public string TempScore { get; set; }
+        public string finalScore { get; set; }
     }
     public class ShowMark {
         public int StudentID { get; set; }
@@ -42,26 +48,26 @@ namespace VinhEdu.ViewModels
     public class Score
     {
         [CustomScoreRequired]
-        public string M1 { get; set; } = "x";
+        public string M1 { get; set; } = "8.3";
         [CustomScoreRequired]
-        public string M2 { get; set; } = "x";
+        public string M2 { get; set; } = "8.3";
         [CustomScoreRequired]
-        public string M3 { get; set; } = "x";
+        public string M3 { get; set; } = "8.3";
         [CustomScoreRequired]
-        public string M4 { get; set; } = "x";
+        public string M4 { get; set; } = "8.3";
         [CustomScoreRequired]
-        public string P1 { get; set; } = "x";
+        public string P1 { get; set; } = "8.3";
         [CustomScoreRequired]
-        public string P2 { get; set; } = "x";
+        public string P2 { get; set; } = "8.3";
         [CustomScoreRequired]
-        public string P3 { get; set; } = "x";
+        public string P3 { get; set; } = "8.3";
         [CustomScoreRequired]
-        public string T1 { get; set; } = "x";
+        public string T1 { get; set; } = "8.3";
         [CustomScoreRequired]
-        public string T2 { get; set; } = "x";
+        public string T2 { get; set; } = "8.3";
         [CustomScoreRequired]
-        public string T3 { get; set; } = "x";
+        public string T3 { get; set; } = "8.3";
         [CustomScoreRequired]
-        public string K1 { get; set; } = "x";
+        public string K1 { get; set; } = "8.3";
     }
 }
