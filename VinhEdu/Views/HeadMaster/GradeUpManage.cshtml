@@ -15,17 +15,27 @@
     Bảng điểm học kỳ 2:
 </div>
 <div id="myGrid2" style="height: 300px;width:100%;" class="ag-theme-balham"></div>
+<hr />
+<div id="gradeUp" class="d-none">
+    <div class="title">
+        Xét lên lớp: <button class="hidden btn btn-danger float-right " id="btnUpdate" onclick="updateGradeUpStatus()">Cập nhật trạng thái</button>
+    </div>
+    <table class="table table-striped" id="table">
+    </table>
+</div>
 <script>
-    var classID = @ViewBag.ClassID;
+    const classID = @ViewBag.ClassID;
+    const semester = "@ViewBag.Semester";
 </script>
 <script>
+    let studentToGradeUp = [];
     //LIST SUBJECT
     var subjectList = [];
     // specify the columns
     var columnDefs = [
         { headerName: "StudentID", field: "StudentID", hide: true, editable: false, resizable: true },
         { headerName: "Học sinh", field: "StudentName", editable: false, resizable: true, },
-        { headerName: "Tổng Kết", field: "finalScore", editable: false, resizable: true,width:80 },
+        { headerName: "Tổng Kết", field: "finalScore", editable: false, resizable: true, width: 80 },
     ];
 
     // specify the data
@@ -152,7 +162,7 @@
                                 if (score.Score.TK != 'x') {
                                     countTK++;
                                 }
-                                newRow = { ...newRow, [`S${s.SubjectID}Score`]: score.Score}
+                                newRow = { ...newRow, [`S${s.SubjectID}Score`]: score.Score }
                             }
                         });
                     });
@@ -161,6 +171,18 @@
                     if (subjectList.length == countTK) {
                         let finalScoreTK = caculateFinalScore(item.SubjectScores);
                         newRow.finalScore = finalScoreTK;
+                        studentToGradeUp.push({
+                            studentID: item.StudentID,
+                            studentName: item.StudentName,
+                            canGradeUp: checkAbleToGradeUp(item.SubjectScores),
+                        })
+                    }
+                    else {
+                        studentToGradeUp.push({
+                            studentID: item.StudentID,
+                            studentName: item.StudentName,
+                            canGradeUp: false,
+                        })
                     }
                     rowData.push(newRow);
                 });
@@ -190,7 +212,7 @@
                                 if (score.Score.TK != 'x') {
                                     countTK++;
                                 }
-                                newRow = { ...newRow, [`S${s.SubjectID}Score`]: score.Score}
+                                newRow = { ...newRow, [`S${s.SubjectID}Score`]: score.Score }
                             }
                         });
                     });
@@ -199,11 +221,26 @@
                     if (subjectList.length == countTK) {
                         let finalScoreTK = caculateFinalScore(item.SubjectScores);
                         newRow.finalScore = finalScoreTK;
+                        let x = checkAbleToGradeUp(item.SubjectScores);
+                        if (x == false) {
+                            let objIndex = studentToGradeUp.findIndex((obj => obj.studentID == item.StudentID));
+                            studentToGradeUp[objIndex].canGradeUp = false;
+                        }
+                    }
+                    else {
+                        let objIndex = studentToGradeUp.findIndex((obj => obj.studentID == item.StudentID));
+                        studentToGradeUp[objIndex].canGradeUp = false;
                     }
                     rowData2.push(newRow);
-                    
+
                 });
                 new agGrid.Grid(eGridDiv2, gridOptions2);
+                if (semester == "HK2") {
+                    constructTable('#table');
+                    $('#gradeUp').removeClass("d-none");
+                    $('#btnUpdate').removeClass("d-none");
+                }
+                
             }
         });
     }
@@ -212,8 +249,8 @@
      */
     function caculateScore(score) {
         let tk = 'x'
-        checkM = score.M1 != 'x' || score.M2 != 'x'|| score.M3  != 'x' || score.M4 != 'x';
-        checkP = score.P1 != 'x'&& score.P2 != 'x' && score.P3 != 'x';
+        checkM = score.M1 != 'x' || score.M2 != 'x' || score.M3 != 'x' || score.M4 != 'x';
+        checkP = score.P1 != 'x' && score.P2 != 'x' && score.P3 != 'x';
         checkT = score.T1 != 'x' && score.T2 != 'x' && score.T3 != 'x';
         checkHK = score.K1 != 'x';
 
@@ -246,7 +283,7 @@
         return 'x';
     }
     /*
-     * Hàm tính điểm tổng kết tất cả  
+     * Hàm tính điểm tổng kết tất cả
      */
     function caculateFinalScore(arrayTK) {
         let countSubject = arrayTK.length + 2;
@@ -260,5 +297,99 @@
             }
         });
         return parseFloat(totalScore / countSubject).toFixed(2);
+    }
+    /*
+     * Check có thể lên lớp k ?
+     */
+    function checkAbleToGradeUp(arrayTK) {
+        let greaterThan50 = true;
+        arrayTK.forEach((e) => {
+            if (parseFloat(e.Score.TK) < 5.0) {
+                greaterThan50 = false;
+            }
+        });
+        return greaterThan50;
+    }
+</script>
+<script>
+    var list = studentToGradeUp;
+
+    function constructTable(selector) {
+
+        // Getting the all column names
+        var cols = Headers(list, selector);
+        // Traversing the JSON data
+        for (var i = 0; i < list.length; i++) {
+            var row = $('<tr/>');
+            for (var colIndex = 0; colIndex < cols.length; colIndex++) {
+                var val = list[i][cols[colIndex]];
+
+                // If there is any key, which is matching
+                // with the column name
+                if (val == null) val = "";
+                row.append($('<td/>').html(printData(val)));
+            }
+
+            // Adding each row to the table
+            $(selector).append(row);
+        }
+    }
+
+    function Headers(list, selector) {
+        var columns = [];
+        var header = $('<tr/>');
+
+        for (var i = 0; i < list.length; i++) {
+            var row = list[i];
+            for (var k in row) {
+                if ($.inArray(k, columns) == -1) {
+                    columns.push(k);
+                    // Creating the header
+                    header.append($('<th/>').html(printHeader(k)));
+                }
+            }
+        }
+
+        // Appending the header to the table
+        $(selector).append(header);
+        return columns;
+    }
+    function printData(data) {
+        if (typeof data == "boolean") {
+            if (data == true) {
+                return "Có";
+            }
+            return "Không";
+        }
+        return data;
+        
+    }
+    function printHeader(data) {
+        if (data == "studentName") {
+            
+            return "Tên Học Sinh";
+        }
+        if (data == "studentID") {
+            return "ID";
+        }
+        if (data == "canGradeUp") {
+            return "Đủ điều kiện lên lớp ?";
+        }
+        return data;
+    }
+</script>  
+<script>
+    function updateGradeUpStatus() {
+        $("#overlay").fadeIn();
+        let lstStudent = studentToGradeUp.map((item) => {
+            return { studentID: item.studentID, canGradeUp: item.canGradeUp }
+        });
+        axios.post("/HeadMaster/UpdateGradeUpStatus", { studentList: lstStudent }).then(resp => {
+            swal("Thành công", resp.data, "success");
+            $("#overlay").fadeOut();
+        }).catch((e) => {
+            swal("Lỗi", "Lỗi hệ thống", "error");
+            $("#overlay").fadeOut();
+        })
     }
 </script>

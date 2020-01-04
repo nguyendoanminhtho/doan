@@ -3,5 +3,83 @@
     ViewBag.Title = "Trang chủ";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
+<style>
+    .small-box .icon {
+        top: -30px;
+    }
+    .small-box .icon i {
+        font-size: 65px;
+    }
+</style>
 
+    <div class="container-fluid">
 
+        <section class="content">
+            <div class="container-fluid mt-3">
+                <div class="row">
+                    <div class="col-lg-3 col-6">
+                        <!-- small box -->
+                        <div class="small-box bg-info">
+                            <div class="inner">
+                                <h3>@ViewBag.countSchool</h3>
+
+                                <p>Trường học</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fa fa-building-o"></i>
+                            </div>
+                            <!-- <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a> -->
+                        </div>
+                    </div>
+                    <!-- ./col -->
+                    <div class="col-lg-3 col-6">
+                        <!-- small box -->
+                        <div class="small-box bg-success">
+                            <div class="inner">
+                                <h3>@ViewBag.countClass</h3>
+
+                                <p>Lớp học</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fa fa-folder-open-o"></i>
+                            </div>
+                            <!-- <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a> -->
+                        </div>
+                    </div>
+                    <!-- ./col -->
+                    <div class="col-lg-3 col-6">
+                        <!-- small box -->
+                        <div class="small-box bg-warning">
+                            <div class="inner">
+                                <h3>@ViewBag.countStudent</h3>
+
+                                <p>Học sinh</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fa fa-user-circle-o"></i>
+                            </div>
+                            <!-- <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a> -->
+                        </div>
+                    </div>
+                    <!-- ./col -->
+                    <div class="col-lg-3 col-6">
+                        <!-- small box -->
+                        <div class="small-box bg-danger">
+                            <div class="inner">
+                                <h3>@ViewBag.countTeacher</h3>
+
+                                <p>Giáo viên</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fa fa-user-secret"></i>
+                            </div>
+                            <!-- <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a> -->
+                        </div>
+                    </div>
+                  
+                    <!-- ./col -->
+                </div>
+                <!-- /.row -->
+            </div>
+        </section>
+    </div>

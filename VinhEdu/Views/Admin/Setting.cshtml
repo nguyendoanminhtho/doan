@@ -5,29 +5,31 @@
 }
     <div class="container-fluid" style="margin-top:15px;padding-top:15px;">
         <h3>Setting</h3>
-            <div class="row">
-                <div class="col-md-12">
-                    Phòng GD:
-                    @Html.TextBoxFor(m => m.OrganizationName, new { @class = "form-control" })
-                </div>
-                <div class="col-md-6">
-                    Niên khóa:
-                    @Html.DropDownList("ConfigureID", (IEnumerable<SelectListItem>)ViewBag.Config, new { @class = "form-control" })
-                </div>
-                <div class="col-md-6">
-                    Học Kỳ:
-                    @Html.EnumDropDownListFor(m => m.Semmester, new { @class = "form-control" })
-                </div>
-                <button onclick="Update()" class="btn btn-danger mt-2 ml-2">CẬP NHẬT</button>
+        <div class="row">
+            <div class="col-md-12">
+                Phòng GD:
+                @Html.TextBoxFor(m => m.OrganizationName, new { @class = "form-control" })
             </div>
+            <div class="col-md-6">
+                Niên khóa:
+                @Html.DropDownList("ConfigureID", (IEnumerable<SelectListItem>)ViewBag.Config, new { @class = "form-control" })
+            </div>
+            <div class="col-md-6">
+                Học Kỳ:
+                @Html.EnumDropDownListFor(m => m.Semester, new { @class = "form-control" })
+            </div>
+            <button onclick="Update()" class="btn btn-danger mt-2 ml-2">CẬP NHẬT</button>
+            <button onclick="UpdateYear()" class="btn btn-danger mt-2 ml-2">SANG NĂM HỌC MỚI</button>
+        </div>
     </div>
 <script>
+    const failStudent = '@ViewBag.countFailStudent';
     function Update() {
         let org = $('#OrganizationName').val();
         let yearID = $('#ConfigureID').val();
-        let semmester = $('#Semmester').val();
-        if (org && org.length > 5 && yearID && semmester) {
-            axios.post('/Admin/Setting', { org: org, ConfigID: yearID, semmester: semmester }).then(resp => {
+        let semester = $('#Semester').val();
+        if (org && org.length > 5 && yearID && semester) {
+            axios.post('/Admin/Setting', { org: org, ConfigID: yearID, semester: semester }).then(resp => {
                 swal("Thành công", "Cập nhật thành công", "success");
             }).catch((e) => {
                 swal("Lỗi", e, "error");
@@ -36,5 +38,26 @@
         else {
             swal("Lỗi", "Nhập lại thông tin", "warning");
         }
+    }
+    function UpdateYear() {
+        swal({
+            title: "Sang năm học mới ?",
+            text: "Vẫn còn: " + failStudent + " học sinh không được lên lớp \n Bạn có muốn sang năm học mới không?",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        })
+            .then((ok) => {
+                if (ok) {
+                    $('#overlay').fadeIn();
+                    axios.post('/Admin/NextYear').then(resp => {
+                        $('#overlay').fadeOut();
+                        swal("Thành công", "Chúc mừng năm học mới", "success").then(resp => {
+                            
+                        location.reload();
+                        })
+                    })
+                }
+            });
     }
 </script>
